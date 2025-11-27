@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+
+# Python packaging
+*.egg-info/
+
+# Data and model artifacts
+data/*.csv
+data/*.npz
+models/
+reports/
+
+# Streamlit and matplotlib caches
+.streamlit/
+.matplotlib/
+
+# macOS
+.DS_Store
