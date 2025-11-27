@@ -1,5 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
 import { Sparkles, RefreshCw, TrendingUp, ArrowRightLeft, Gauge } from "lucide-react";
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
@@ -172,7 +185,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {cards.map((card) => (
               <Card key={card.label} className="bg-surface">
                 <div className="flex items-center justify-between">
@@ -194,23 +207,22 @@ export default function App() {
                   label: "Performance",
                   content: (
                     <Card title="Actual vs Predicted">
-                      <LineChart
-                        width={1100}
-                        height={360}
-                        data={filtered}
-                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                        <XAxis dataKey="date" stroke="#94A3B8" hide />
-                        <YAxis stroke="#94A3B8" />
-                        <Tooltip
-                          contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }}
-                          labelFormatter={(v) => new Date(v).toISOString().slice(0, 10)}
-                        />
-                        <Legend />
-                        <Line type="monotone" dataKey="actual" stroke="#38BDF8" dot={false} />
-                        <Line type="monotone" dataKey="predicted" stroke="#A855F7" dot={false} />
-                      </LineChart>
+                      <div className="w-full" style={{ height: 360 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={filtered} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
+                            <XAxis dataKey="date" stroke="#94A3B8" hide />
+                            <YAxis stroke="#94A3B8" />
+                            <Tooltip
+                              contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }}
+                              labelFormatter={(v) => new Date(v).toISOString().slice(0, 10)}
+                            />
+                            <Legend />
+                            <Line type="monotone" dataKey="actual" stroke="#38BDF8" dot={false} />
+                            <Line type="monotone" dataKey="predicted" stroke="#A855F7" dot={false} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
                     </Card>
                   )
                 },
@@ -220,13 +232,17 @@ export default function App() {
                   content: (
                     <div className="grid gap-4 lg:grid-cols-2">
                       <Card title="Residual Histogram">
-                        <BarChart width={520} height={320} data={residualBins}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                          <XAxis dataKey="name" stroke="#94A3B8" />
-                          <YAxis stroke="#94A3B8" />
-                          <Tooltip contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }} />
-                          <Bar dataKey="count" fill="#A855F7" />
-                        </BarChart>
+                        <div className="w-full" style={{ height: 320 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={residualBins}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
+                              <XAxis dataKey="name" stroke="#94A3B8" />
+                              <YAxis stroke="#94A3B8" />
+                              <Tooltip contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }} />
+                              <Bar dataKey="count" fill="#A855F7" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
                       </Card>
                       <Card title="Recent Residuals">
                         <div className="space-y-3">
@@ -265,25 +281,29 @@ export default function App() {
                       title="Five-day projection"
                       action={<Badge tone="info">{forecastSubset.length} days</Badge>}
                     >
-                      <AreaChart width={1100} height={320} data={forecastSubset}>
-                        <defs>
-                          <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#A855F7" stopOpacity={0.6} />
-                            <stop offset="95%" stopColor="#A855F7" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                        <XAxis dataKey="date" stroke="#94A3B8" />
-                        <YAxis stroke="#94A3B8" />
-                        <Tooltip contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }} />
-                        <Area
-                          type="monotone"
-                          dataKey="predicted_close"
-                          stroke="#A855F7"
-                          fillOpacity={1}
-                          fill="url(#forecastFill)"
-                        />
-                      </AreaChart>
+                      <div className="w-full" style={{ height: 320 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={forecastSubset}>
+                            <defs>
+                              <linearGradient id="forecastFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#A855F7" stopOpacity={0.6} />
+                                <stop offset="95%" stopColor="#A855F7" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
+                            <XAxis dataKey="date" stroke="#94A3B8" />
+                            <YAxis stroke="#94A3B8" />
+                            <Tooltip contentStyle={{ background: "#0F172A", borderColor: "#1E293B" }} />
+                            <Area
+                              type="monotone"
+                              dataKey="predicted_close"
+                              stroke="#A855F7"
+                              fillOpacity={1}
+                              fill="url(#forecastFill)"
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
                     </Card>
                   )
                 }
@@ -293,7 +313,7 @@ export default function App() {
 
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             <Card title="Latest predictions" className="lg:col-span-2">
-              <div className="grid grid-cols-5 gap-2 text-xs uppercase tracking-wide text-slate-400">
+              <div className="grid grid-cols-2 gap-2 text-xs uppercase tracking-wide text-slate-400 sm:grid-cols-5">
                 <span>Date</span>
                 <span>Actual</span>
                 <span>Predicted</span>
@@ -304,7 +324,10 @@ export default function App() {
                 {filtered.slice(-15).map((row) => {
                   const residual = row.predicted - row.actual;
                   return (
-                    <div key={`${row.date}-${row.predicted}`} className="grid grid-cols-5 gap-2 py-3 text-sm">
+                    <div
+                      key={`${row.date}-${row.predicted}`}
+                      className="grid grid-cols-2 gap-2 py-3 text-sm sm:grid-cols-5"
+                    >
                       <span className="text-slate-300">{row.date}</span>
                       <span className="font-semibold text-slate-50">{formatNumber(row.actual)}</span>
                       <span className="font-semibold text-slate-50">{formatNumber(row.predicted)}</span>
