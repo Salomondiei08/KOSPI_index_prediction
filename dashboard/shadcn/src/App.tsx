@@ -35,6 +35,7 @@ export default function App() {
   const [forecast, setForecast] = useState<ForecastRow[]>([]);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"perf" | "residuals" | "forecast">("perf");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setState("loading");
@@ -44,10 +45,12 @@ export default function App() {
         setPredictions(p);
         setForecast(f);
         setSelectedModel(m[0]?.model ?? null);
+        setErrorMessage(null);
         setState("ready");
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error(err);
+        setErrorMessage(err?.message ?? "Failed to load reports");
         setState("error");
       });
   }, []);
@@ -96,7 +99,9 @@ export default function App() {
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-400">KOSPI Predictor</p>
-          <h1 className="font-display text-3xl font-semibold text-white">Command Center (shadcn edition)</h1>
+          <h1 className="font-display text-3xl font-semibold text-white">
+            December 1st–5th KOSPI Index Predictions
+          </h1>
           <p className="mt-1 text-slate-400">
             Beautiful, component-driven view of training quality, residuals, and the Dec 2025 outlook.
           </p>
@@ -135,7 +140,11 @@ export default function App() {
 
       {state === "error" && (
         <Card title="Error" className="border border-red-500/40">
-          <p className="text-red-200">Unable to load dashboard data. Ensure reports are generated via python main.py.</p>
+          <p className="text-red-200">
+            Unable to load dashboard data. Ensure reports are generated via python main.py.
+            <br />
+            {errorMessage ? <span className="text-red-300">Details: {errorMessage}</span> : null}
+          </p>
         </Card>
       )}
 

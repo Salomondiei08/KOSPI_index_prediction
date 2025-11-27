@@ -22,5 +22,10 @@ npm run preview
 ```
 
 ## Notes
+- Point the app at your artifacts. Easiest: create a symlink so Vite serves them:
+  ```bash
+  ln -snf ../../reports public/reports   # from dashboard/shadcn
+  ```
+  Then use `VITE_REPORTS_BASE=/reports npm run dev`. You can also copy the files into `public/reports` if symlinks aren’t allowed.
 - The dev server is allowed to read `../reports` via `vite.config.ts -> server.fs.allow`. Keep running `python main.py` to refresh artifacts, then hit **Reload** in the UI.
 - Adjust branding/colors via `tailwind.config.ts` and `src/index.css`.

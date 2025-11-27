@@ -1,6 +1,10 @@
 import { csvParse } from "d3-dsv";
 
-const REPORTS_BASE = import.meta.env.VITE_REPORTS_BASE || "../reports";
+const REPORTS_BASES = [
+  import.meta.env.VITE_REPORTS_BASE,
+  "/reports", // served from public/reports symlink
+  "../reports" // dev fallback when running from within dashboard/shadcn
+].filter(Boolean) as string[];
 
 export type MetricsRecord = {
   model: string;
@@ -41,33 +45,58 @@ async function fetchCsv<T>(path: string, parse: (row: any) => T): Promise<T[]> {
   return csvParse(text).map(parse);
 }
 
+async function fetchWithFallback<T>(paths: string[], loader: (p: string) => Promise<T>): Promise<T> {
+  const errors: string[] = [];
+  for (const path of paths) {
+    try {
+      return await loader(path);
+    } catch (err: any) {
+      errors.push(`${path}: ${err?.message ?? err}`);
+    }
+  }
+  throw new Error(errors.join(" | "));
+}
+
 export async function loadMetrics(): Promise<MetricsRecord[]> {
-  const payload = await fetchJson<Record<string, { RMSE: number; MAE: number; DirectionalAccuracy: number }>>(
-    `${REPORTS_BASE}/evaluation_metrics.json`
+  return fetchWithFallback(
+    REPORTS_BASES.map((base) => `${base}/evaluation_metrics.json`),
+    async (path) => {
+      const payload = await fetchJson<
+        Record<string, { RMSE: number; MAE: number; DirectionalAccuracy: number }>
+      >(path);
+      return Object.entries(payload).map(([model, metrics]) => ({
+        model,
+        RMSE: metrics.RMSE,
+        MAE: metrics.MAE,
+        DirectionalAccuracy: metrics.DirectionalAccuracy
+      }));
+    }
   );
-  return Object.entries(payload).map(([model, metrics]) => ({
-    model,
-    RMSE: metrics.RMSE,
-    MAE: metrics.MAE,
-    DirectionalAccuracy: metrics.DirectionalAccuracy
-  }));
 }
 
 export async function loadPredictions(): Promise<PredictionRow[]> {
-  return fetchCsv<PredictionRow>(`${REPORTS_BASE}/predictions.csv`, (row) => ({
-    date: row.date,
-    model: row.model,
-    actual: Number(row.actual),
-    predicted: Number(row.predicted),
-    split: row.split
-  }));
+  return fetchWithFallback(
+    REPORTS_BASES.map((base) => `${base}/predictions.csv`),
+    (path) =>
+      fetchCsv<PredictionRow>(path, (row) => ({
+        date: row.date,
+        model: row.model,
+        actual: Number(row.actual),
+        predicted: Number(row.predicted),
+        split: row.split
+      }))
+  );
 }
 
 export async function loadForecast(): Promise<ForecastRow[]> {
-  return fetchCsv<ForecastRow>(`${REPORTS_BASE}/forecast_dec_2025.csv`, (row) => ({
-    date: row.date,
-    model: row.model,
-    predicted_close: Number(row.predicted_close),
-    predicted_log_return: Number(row.predicted_log_return)
-  }));
+  return fetchWithFallback(
+    REPORTS_BASES.map((base) => `${base}/forecast_dec_2025.csv`),
+    (path) =>
+      fetchCsv<ForecastRow>(path, (row) => ({
+        date: row.date,
+        model: row.model,
+        predicted_close: Number(row.predicted_close),
+        predicted_log_return: Number(row.predicted_log_return)
+      }))
+  );
 }
