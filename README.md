@@ -7,7 +7,7 @@ End-to-end deep-learning pipeline for short-term KOSPI forecasts using LSTM/RNN,
 kospi_predictor/
 ├── data/                # Raw and processed datasets
 ├── src/                 # Data pipeline, models, training & evaluation
-├── dashboard/           # Streamlit dashboard
+├── dashboard/           # Streamlit dashboard + shadcn React dashboard
 ├── models/              # Saved PyTorch checkpoints
 ├── reports/             # Metrics, predictions, and plots
 ├── main.py              # Orchestrates preprocess → train → evaluate
@@ -27,9 +27,16 @@ kospi_predictor/
    python main.py
    ```
    By default the preprocessing step pulls the full KOSPI history from Yahoo Finance (`^KS11`, 1983→today) and caches it in `data/kospi_data.csv`. If the API call fails (e.g., offline) it will fall back to any existing CSV in that path. After the download it trains the three models and writes metrics/predictions to `reports/`.
-3. **Launch the dashboard**
+3. **Launch the dashboards**
    ```bash
+   # Streamlit (Python)
    streamlit run dashboard/app.py
+
+   # Shadcn React (requires npm; serves Dec 1–5 2025 view)
+   cd dashboard/shadcn
+   npm install
+   ln -snf ../../reports public/reports   # or copy the files into public/reports
+   VITE_REPORTS_BASE=/reports npm run dev
    ```
    Inspect metrics, charts, upload custom prediction files, and review the generated Dec 1–5 2025 outlook (fed by `reports/forecast_dec_2025.csv`) in the redesigned dark UI.
 
