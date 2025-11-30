@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node copy-reports.js",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit"
