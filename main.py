@@ -7,7 +7,7 @@ from src.train import TrainingConfig, run_training_pipeline
 
 
 def main() -> None:
-    pre_cfg = PreprocessingConfig()
+    pre_cfg = PreprocessingConfig(end_date="2025-11-30")
     train_cfg = TrainingConfig()
 
     print("📦 Preprocessing data...")

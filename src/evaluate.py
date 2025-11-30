@@ -104,7 +104,8 @@ def save_attention_heatmap(model, sample_batch: torch.Tensor, model_name: str, r
         return
     if attn is None:
         return
-    weights = attn.mean(dim=0).cpu().numpy()
+    # attn shape: (batch, heads, seq, seq); average batch + heads for a 2D map
+    weights = attn.mean(dim=(0, 1)).cpu().numpy()
     plt.figure(figsize=(6, 5))
     plt.imshow(weights, cmap="viridis", aspect="auto")
     plt.colorbar()
