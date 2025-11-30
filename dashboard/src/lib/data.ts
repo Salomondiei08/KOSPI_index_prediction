@@ -1,10 +1,7 @@
 import { csvParse } from "d3-dsv";
 
-const REPORTS_BASES = [
-  import.meta.env.VITE_REPORTS_BASE,
-  "../reports",
-  "/reports"
-].filter(Boolean) as string[];
+// Prefer bundled reports inside public/reports (included at build time).
+const REPORTS_BASES = ["/reports", import.meta.env.VITE_REPORTS_BASE, "../reports"].filter(Boolean) as string[];
 
 export type MetricsRecord = {
   model: string;
