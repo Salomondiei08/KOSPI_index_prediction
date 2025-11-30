@@ -30,6 +30,7 @@ class PreprocessingConfig:
     train_ratio: float = 0.7
     val_ratio: float = 0.2
     prefer_api: bool = True
+    force_refresh: bool = False
     ticker: str = "^KS11"
     start_date: str = "1983-01-01"
     end_date: str | None = None
@@ -45,7 +46,7 @@ def load_raw_data(cfg: PreprocessingConfig) -> pd.DataFrame:
                 end=cfg.end_date,
                 output_csv=cfg.source_csv,
             )
-            df = ensure_local_cache(yahoo_cfg, force=False)
+            df = ensure_local_cache(yahoo_cfg, force=cfg.force_refresh)
         except Exception as exc:  # pragma: no cover - network failures
             print(f"Yahoo Finance download failed ({exc}). Falling back to local CSV.")
     if df is None:
@@ -54,6 +55,17 @@ def load_raw_data(cfg: PreprocessingConfig) -> pd.DataFrame:
                 f"Local CSV not found at {cfg.source_csv} and API download disabled/unavailable."
             )
         df = pd.read_csv(cfg.source_csv, parse_dates=["Date"])
+    # If Date ended up as index, restore it as a column
+    if "Date" not in df.columns:
+        if isinstance(df.index, pd.DatetimeIndex):
+            df = df.reset_index().rename(columns={"index": "Date"})
+        else:
+            raise KeyError("Date column missing and index is not datetime; cannot proceed.")
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df = df.dropna(subset=["Date"])
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    df = df.dropna(subset=["Close"])
     df = df.sort_values("Date").reset_index(drop=True)
     df = df.ffill().bfill()
     return df

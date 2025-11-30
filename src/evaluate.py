@@ -124,6 +124,8 @@ def evaluate_models(pre_cfg: PreprocessingConfig, train_cfg) -> Dict[str, Dict[s
     input_size = arrays["X_test"].shape[-1]
     target_mean = float(arrays.get("target_mean", np.array([0.0]))[0])
     target_std = float(arrays.get("target_std", np.array([1.0]))[0])
+    lower = float(arrays.get("outlier_lower", np.array([-np.inf]))[0])
+    upper = float(arrays.get("outlier_upper", np.array([np.inf]))[0])
     device = torch.device(train_cfg.device if torch.cuda.is_available() else "cpu")
 
     test_loader = build_dataloader(arrays["X_test"], arrays["y_test"], batch_size=train_cfg.batch_size, shuffle=False)
@@ -140,6 +142,8 @@ def evaluate_models(pre_cfg: PreprocessingConfig, train_cfg) -> Dict[str, Dict[s
         model.to(device)
         preds = collect_predictions(model, test_loader, device)
         predicted_returns = preds * target_std + target_mean
+        # Clamp to historical inlier band to reduce unrealistic swings
+        predicted_returns = np.clip(predicted_returns, lower, upper)
         predicted_close = base_close * np.exp(predicted_returns)
         metrics[name] = {
             "RMSE": rmse(predicted_close, actual_close),

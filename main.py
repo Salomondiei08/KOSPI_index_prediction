@@ -7,8 +7,27 @@ from src.train import TrainingConfig, run_training_pipeline
 
 
 def main() -> None:
-    pre_cfg = PreprocessingConfig(end_date="2025-11-30")
-    train_cfg = TrainingConfig()
+    pre_cfg = PreprocessingConfig(
+        end_date="2025-11-30",
+        start_date="1980-01-01",
+        window_size=30,
+        rolling_window=60,
+        train_ratio=0.8,
+        val_ratio=0.1,
+        force_refresh=True,
+    )
+    train_cfg = TrainingConfig(
+        batch_size=128,
+        epochs=60,
+        learning_rate=4e-4,
+        patience=8,
+        hidden_size=160,
+        num_layers=2,
+        dropout=0.1,
+        transformer_dim=160,
+        nhead=8,
+        weight_decay=1e-4,
+    )
 
     print("📦 Preprocessing data...")
     preprocess_and_save(pre_cfg)

@@ -20,6 +20,7 @@ from src.train import TrainingConfig
 from src.utils import load_processed_arrays
 
 
+
 @dataclass
 class ForecastConfig:
     start_date: str = "2025-12-01"
@@ -163,6 +164,7 @@ def generate_forecast(
                     output = output[0]
                 normalized_return = float(output.squeeze().cpu().item())
             predicted_return = normalized_return * target_std + target_mean
+            predicted_return = float(np.clip(predicted_return, lower, upper))
             previous_close = closes[-1]
             predicted_close = previous_close * math.exp(predicted_return)
 

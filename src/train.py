@@ -81,7 +81,8 @@ def train_model(
 ) -> TrainingSummary:
     device = torch.device(cfg.device)
     model = model.to(device)
-    criterion = nn.MSELoss()
+    # Huber loss (SmoothL1) is less sensitive to outliers than MSE
+    criterion = nn.SmoothL1Loss(beta=0.01)
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=cfg.learning_rate,

@@ -24,6 +24,7 @@ class YahooFinanceConfig:
     output_csv: Path = Path("data/kospi_data.csv")
 
 
+
 def download_kospi_history(cfg: YahooFinanceConfig) -> pd.DataFrame:
     """
     Download KOSPI historical OHLCV data using Yahoo Finance and persist to CSV.
@@ -42,6 +43,16 @@ def download_kospi_history(cfg: YahooFinanceConfig) -> pd.DataFrame:
     )
     if df.empty:
         raise ValueError("Yahoo Finance returned an empty dataframe for the requested range.")
+
+    # Flatten multi-index columns (happens when group_by ticker)
+    if isinstance(df.columns, pd.MultiIndex):
+        if cfg.ticker in df.columns.get_level_values(-1):
+            df = df.xs(cfg.ticker, level=-1, axis=1)
+        else:
+            df = df.droplevel(0, axis=1)
+    # Drop column names and tuples for cleanliness
+    df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
+    df.columns.name = None
 
     df = df.reset_index()
     df = df.rename(
@@ -68,4 +79,3 @@ def ensure_local_cache(cfg: YahooFinanceConfig, force: bool = False) -> pd.DataF
     if force or not cfg.output_csv.exists():
         return download_kospi_history(cfg)
     return pd.read_csv(cfg.output_csv, parse_dates=["Date"])
-
