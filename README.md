@@ -1,13 +1,13 @@
 # KOSPI Predictor
 
-End-to-end deep-learning pipeline for short-term KOSPI forecasts using LSTM/RNN, Transformer, and Hybrid architectures. The project covers data preprocessing, model training/evaluation, Streamlit visualization, and Docker deployment.
+End-to-end deep-learning pipeline for short-term KOSPI forecasts using LSTM/RNN, Transformer, and Hybrid architectures. The project covers data preprocessing, model training/evaluation, a React dashboard, and Dockerized CLI runs.
 
 ## Project layout
 ```
 kospi_predictor/
 ├── data/                # Raw and processed datasets
 ├── src/                 # Data pipeline, models, training & evaluation
-├── dashboard/           # Streamlit dashboard + shadcn React dashboard
+├── dashboard/           # shadcn React dashboard
 ├── models/              # Saved PyTorch checkpoints
 ├── reports/             # Metrics, predictions, and plots
 ├── main.py              # Orchestrates preprocess → train → evaluate
@@ -27,12 +27,9 @@ kospi_predictor/
    python main.py
    ```
    By default the preprocessing step pulls the full KOSPI history from Yahoo Finance (`^KS11`, 1983→today) and caches it in `data/kospi_data.csv`. If the API call fails (e.g., offline) it will fall back to any existing CSV in that path. After the download it trains the three models and writes metrics/predictions to `reports/`.
-3. **Launch the dashboards**
+3. **Launch the dashboard**
    ```bash
-   # Streamlit (Python)
-   streamlit run dashboard/app.py
-
-   # Shadcn React (requires npm; serves Dec 1–5 2025 view)
+   # shadcn React (requires npm; serves Dec 1–5 2025 view)
    cd dashboard/shadcn
    npm install
    ln -snf ../../reports public/reports   # or copy the files into public/reports
@@ -43,9 +40,9 @@ kospi_predictor/
 ## Docker
 ```bash
 docker build -t kospi-predictor .
-docker run -p 8501:8501 kospi-predictor
+docker run kospi-predictor
 ```
-The container installs requirements and boots the Streamlit dashboard on port 8501.
+The container installs requirements and runs `python main.py` to produce fresh artifacts in `reports/`.
 
 ## Key modules
 - `src/data_fetcher.py`: Downloads historical KOSPI OHLCV data from Yahoo Finance and stores it locally for repeatable runs.
@@ -54,7 +51,7 @@ The container installs requirements and boots the Streamlit dashboard on port 85
 - `src/train.py`: Config-driven training loop with AdamW, ReduceLROnPlateau scheduler, gradient clipping, and early stopping.
 - `src/evaluate.py`: Loads checkpoints, scores on the test split, saves metrics JSON/CSV, and exports plots/attention heatmaps.
 - `src/forecast.py`: Rolls each trained model forward to produce Dec 1–5 2025 predictions saved under `reports/forecast_dec_2025.csv`.
-- `dashboard/app.py`: Streamlit UI with a modern template, hero metrics, tabs for performance/residuals/forecasts, Plotly charts, and CSV upload/download utilities.
+- `dashboard/shadcn`: React dashboard for metrics, residuals, and the Dec 1–5 2025 outlook.
 
 ## Configuration
 Adjust hyperparameters via `PreprocessingConfig`, `TrainingConfig`, and `ForecastConfig` in `main.py` / `src/train.py` (window size, Yahoo Finance ticker/range, hidden dims, learning rate, forecast window, etc.). Set `prefer_api=False` if you want to skip the live download and exclusively rely on a local CSV.
