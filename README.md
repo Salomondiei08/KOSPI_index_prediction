@@ -33,7 +33,7 @@ kospi_predictor/
    npm install
    VITE_REPORTS_BASE=../reports npm run dev   # open the printed localhost port (5173 by default)
    ```
-   The dashboard reads `reports/` directly (no symlinks/copies). Vite serves `/reports/*` from the project’s `reports/` folder automatically. It shows metrics, recent predictions, residuals, and the Dec 1–5 2025 outlook.
+   The dashboard reads `reports/` directly. For deploys (e.g., Vercel), the `prebuild` script copies `../reports` into `dashboard/public/reports`, so `/reports/*` is served statically. It shows metrics, recent predictions, residuals, and the Dec 1–5 2025 outlook.
 
 ## Docker
 ```bash
