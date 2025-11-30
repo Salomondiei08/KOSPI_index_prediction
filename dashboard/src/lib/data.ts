@@ -1,7 +1,12 @@
 import { csvParse } from "d3-dsv";
 
-// Prefer bundled reports inside public/reports (included at build time).
-const REPORTS_BASES = ["/reports", import.meta.env.VITE_REPORTS_BASE, "../reports"].filter(Boolean) as string[];
+// Prefer bundled reports inside public/reports (included at build time). Fall back to relative paths.
+const REPORTS_BASES = [
+  "/reports",
+  "./reports",
+  import.meta.env.VITE_REPORTS_BASE,
+  "../reports"
+].filter(Boolean) as string[];
 
 export type MetricsRecord = {
   model: string;

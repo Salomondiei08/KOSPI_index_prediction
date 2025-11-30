@@ -1,0 +1,38 @@
+{
+  "generated_at": "2024-01-06T12:00:00",
+  "models": [
+    {
+      "name": "RNN",
+      "horizon": "1d",
+      "split": "validation",
+      "metrics": {
+        "mae": 4.21,
+        "rmse": 4.78,
+        "mape": 0.18,
+        "r2": 0.81
+      }
+    },
+    {
+      "name": "Transformer",
+      "horizon": "1d",
+      "split": "validation",
+      "metrics": {
+        "mae": 2.78,
+        "rmse": 3.01,
+        "mape": 0.12,
+        "r2": 0.92
+      }
+    },
+    {
+      "name": "Hybrid",
+      "horizon": "1d",
+      "split": "validation",
+      "metrics": {
+        "mae": 1.92,
+        "rmse": 2.55,
+        "mape": 0.09,
+        "r2": 0.95
+      }
+    }
+  ]
+}
