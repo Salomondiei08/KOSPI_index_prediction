@@ -13,9 +13,8 @@ venv/
 # Data and model artifacts
 data/*.csv
 data/*.npz
-models/
 reports/
-
+*.pt
 # Streamlit and matplotlib caches
 .streamlit/
 .matplotlib/
